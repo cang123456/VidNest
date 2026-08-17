@@ -109,3 +109,56 @@ A: 先看命令行窗口里的红色错误日志，最常见几类：
 Q: 播放某视频只有声音没有画面？
 A: 大概率是视频编码格式浏览器不支持（比如 HEVC / H.265 的 mp4 很多浏览器默认不硬解）。
    解决：用别的播放器下载下来看，或者转码成 H.264。
+
+
+补充常用运维命令：
+
+go打包
+go build -o main.exe main.go
+
+pm2运维
+```
+
+
+
+
+pm2 start ecosystem.config.js
+# 启动
+
+pm2 status # 查看进程状态
+pm2 logs myapp # 查看日志
+pm2 restart myapp # 重启进程
+pm2 stop myapp # 停止进程
+pm2 delete myapp # 删除进程
+
+pm2 save          # 保存当前运行的进程列表（生成 dump.pm2）
+pm2 resurrect     # 恢复保存的进程（对应脚本里的命令）
+pm2 list          # 查看当前所有 PM2 进程
+pm2 kill          # 停止所有 PM2 进程（包括守护进程）
+
+# 正确的首次使用流程：
+pm2 start ecosystem.config.js   # 启动应用
+pm2 save                          # 保存进程列表
+# 然后再把 .bat 脚本加入开机启动
+
+
+
+```
+
+ecosystem.config.js内容
+```
+module.exports = {
+  apps: [{
+    name: 'VidNest',                  // 修改为你的项目名 VidNest
+    cwd: 'E:/prj/v-go001',            // 项目根目录，使用正斜杠
+    script: 'main.exe',               // Go编译输出二进制，不是main.go
+    out_file: 'D:/logs/out.log',
+    error_file: 'D:/logs/error.log',
+    autorestart: true,
+    watch: false,
+    instances: 1,
+    env: {
+    }
+  }]
+}
+```
