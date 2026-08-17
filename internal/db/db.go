@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	_ "github.com/mattn/go-sqlite3" // 匿名导入：注册 SQLite 驱动
+	_ "github.com/glebarez/sqlite" // 纯 Go SQLite 驱动，无需 CGO
 )
 
 // Init 连接 SQLite，并确保 data 目录和 videos 表存在。
@@ -18,8 +18,8 @@ func Init(dbPath string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	// 2. 打开 SQLite；文件不存在会自动创建
-	conn, err := sql.Open("sqlite3", dbPath+"?_busy_timeout=5000&_journal_mode=WAL")
+	// 2. 打开 SQLite；glebarez/sqlite 使用 "sqlite" 驱动名
+	conn, err := sql.Open("sqlite", dbPath+"?_busy_timeout=5000&_journal_mode=WAL")
 	if err != nil {
 		return nil, err
 	}

@@ -14,16 +14,16 @@ import (
 // PageData 传给所有 HTML 模板的公共数据结构，避免每个模板各自拼一堆字段。
 // 用 gin.H 也行，但结构体重命名和补零值更省心。
 type PageData struct {
-	Title       string      // 页面标题，显示在浏览器标签
-	CurrentURL  string      // 当前访问的 URL，给导航栏高亮用
-	Folders     interface{} // 左侧文件夹列表
-	Data        interface{} // 页面主体数据，各页自由发挥
-	Search      string      // 搜索框回填值
-	Sort        string      // 排序下拉框回填
-	TotalPages  int         // 总页数
-	CurrentPage int         // 当前页
-	FolderPath  string      // 当前所在的文件夹（面包屑）
-	pagerBase   string      // 非导出：分页链接的基础 URL（含 q 和 sort）
+	Title        string      // 页面标题，显示在浏览器标签
+	CurrentURL   string      // 当前访问的 URL，给导航栏高亮用
+	Folders      interface{} // 左侧文件夹列表
+	Data         interface{} // 页面主体数据，各页自由发挥
+	Search       string      // 搜索框回填值
+	Sort         string      // 排序下拉框回填
+	TotalPages   int         // 总页数
+	CurrentPage  int         // 当前页
+	FolderPath   string      // 当前所在的文件夹（面包屑）
+	PagerBaseURL string      // 分页链接的基础 URL（含 q 和 sort），必须导出才能给模板用
 }
 
 // RenderHome 首页：展示所有视频。
@@ -38,12 +38,6 @@ func (h *Handler) RenderHome(c *gin.Context) {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{"msg": "查询失败：" + err.Error()})
 		return
 	}
-	folders, _ := h.ListFolders()
-	totalPages := (total + pageSize - 1) / pageSize
-	if totalPages < 1 {
-		totalPages = 1
-	}
-
 	folders, _ := h.ListFolders()
 	totalPages := (total + pageSize - 1) / pageSize
 	if totalPages < 1 {
@@ -84,12 +78,6 @@ func (h *Handler) RenderFolder(c *gin.Context) {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{"msg": "查询失败：" + err.Error()})
 		return
 	}
-	folders, _ := h.ListFolders()
-	totalPages := (total + pageSize - 1) / pageSize
-	if totalPages < 1 {
-		totalPages = 1
-	}
-
 	folders, _ := h.ListFolders()
 	totalPages := (total + pageSize - 1) / pageSize
 	if totalPages < 1 {

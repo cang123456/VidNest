@@ -1,65 +1,126 @@
-{{- /* 扩展 layout.html，只替换它里面的 block 部分 */ -}}
-{{- define "breadcrumb" }}<b>全部视频</b>{{- end }}
-{{- define "search-url" }}/{{- end }}
+{{- /*
+      首页：全部视频列表。
+      直接用完整 HTML（不用 layout 继承），避免新手调试 Gin 模板 define/block 时踩空白页的坑。
+*/ -}}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{ .Title }} - 本地视频 NAS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">🎬 我的视频</div>
+        {{- range .Folders }}
+        {{- $active := eq .Path "" }}
+        {{- if not $active }}{{ $active = eq .Path $.FolderPath }}{{- end }}
+        <a class="nav-item {{ if $active }}active{{ end }}"
+           href="{{ if eq .Path "" }}/{{ else }}/folder{{ .Path }}{{ end }}">
+            <span>
+                {{- if eq .Path "" }}📚{{ else }}<span class="folder-icon">📁</span>{{ end }}
+                {{ .Name }}
+            </span>
+            <span class="count">{{ .Count }}</span>
+        </a>
+        {{- end }}
+    </aside>
 
-{{- define "toolbar" }}
-<div class="toolbar">
-    <div style="color:#6b7280; font-size:13px;">
-        这里是你所有的视频，点击封面即可播放
-    </div>
-    <div class="sort-wrap">
-        排序：
-        <form method="get" action="/" style="display:inline;">
-            {{- if ne .Search "" }}<input type="hidden" name="q" value="{{ .Search }}">{{- end }}
-            <select class="sort-select" name="sort" onchange="this.form.submit()">
-                <option value="date_desc" {{ if eq .Sort "" "date_desc" }}selected{{ end }}>最新入库 ↓</option>
-                <option value="date"      {{ if eq .Sort "date" }}selected{{ end }}>最早入库 ↑</option>
-                <option value="name"      {{ if eq .Sort "name" }}selected{{ end }}>文件名 A→Z</option>
-                <option value="name_desc" {{ if eq .Sort "name_desc" }}selected{{ end }}>文件名 Z→A</option>
-                <option value="size_desc" {{ if eq .Sort "size_desc" }}selected{{ end }}>文件大→小</option>
-                <option value="size"      {{ if eq .Sort "size" }}selected{{ end }}>文件小→大</option>
-            </select>
-        </form>
-    </div>
-</div>
-{{- end }}
+    <div class="main">
+        <header class="topbar">
+            <div class="left breadcrumb"><b>全部视频</b></div>
+            <div class="right">
+                <form class="search-box" method="get" action="/">
+                    <input type="text" name="q" placeholder="搜索文件名..." value="{{ .Search }}">
+                    {{- if ne .Sort "" }}<input type="hidden" name="sort" value="{{ .Sort }}">{{- end }}
+                </form>
+                <button class="btn btn-secondary" data-action="scan">🔄 重新扫描</button>
+                <a href="/upload" class="btn btn-primary">⬆️ 上传视频</a>
+            </div>
+        </header>
 
-{{- define "content" }}
-    {{- $videos := .Data }}
-    {{- if not $videos }}
-        <div class="empty-state">
-            <div class="big-icon">🎬</div>
-            <div class="tip">这里还没有视频</div>
-            <div class="sub">
-                可以：① 去「上传视频」添加 &nbsp; ② 或者点「重新扫描」让系统从视频目录里自动导入
+        <div class="toolbar">
+            <div style="color:#6b7280; font-size:13px;">
+                这里是你所有的视频，点击封面即可播放
+            </div>
+            <div class="sort-wrap">
+                排序：
+                <form method="get" action="/" style="display:inline;">
+                    {{- if ne .Search "" }}<input type="hidden" name="q" value="{{ .Search }}">{{- end }}
+                    <select class="sort-select" name="sort" onchange="this.form.submit()">
+                        {{- $sort := or .Sort "date_desc" }}
+                        <option value="date_desc" {{ if eq $sort "date_desc" }}selected{{ end }}>最新入库 ↓</option>
+                        <option value="date"      {{ if eq $sort "date" }}selected{{ end }}>最早入库 ↑</option>
+                        <option value="name"      {{ if eq $sort "name" }}selected{{ end }}>文件名 A→Z</option>
+                        <option value="name_desc" {{ if eq $sort "name_desc" }}selected{{ end }}>文件名 Z→A</option>
+                        <option value="size_desc" {{ if eq $sort "size_desc" }}selected{{ end }}>文件大→小</option>
+                        <option value="size"      {{ if eq $sort "size" }}selected{{ end }}>文件小→大</option>
+                    </select>
+                </form>
             </div>
         </div>
-    {{- else }}
-        <div class="video-grid">
-        {{- range $videos }}
-            <div class="video-card" data-video-id="{{ .ID }}">
-                <div class="cover">
-                    {{- if .Thumbnail }}
-                        <img loading="lazy" src="/thumb/{{ .Thumbnail }}" alt="">
-                    {{- else }}
-                        <div class="no-thumb">🎞️</div>
-                    {{- end }}
-                    <div class="duration">{{ .DurationHuman }}</div>
-                </div>
-                <div class="info">
-                    <div class="name" title="{{ .FileName }}">{{ .FileName }}</div>
-                    <div class="meta">
-                        <span>{{ .Resolution }}</span>
-                        <span>{{ .SizeHuman }}</span>
+
+        <div class="content">
+            {{- $videos := .Data }}
+            {{- if not $videos }}
+                <div class="empty-state">
+                    <div class="big-icon">🎬</div>
+                    <div class="tip">这里还没有视频</div>
+                    <div class="sub">
+                        可以：① 去「上传视频」添加 &nbsp; ② 或者点「重新扫描」让系统从视频目录里自动导入
                     </div>
                 </div>
-            </div>
-        {{- end }}
-        </div>
+            {{- else }}
+                <div class="video-grid">
+                {{- range $videos }}
+                    <div class="video-card" data-video-id="{{ .ID }}">
+                        <div class="cover">
+                            {{- if .Thumbnail }}
+                                <img loading="lazy" src="/thumb/{{ .Thumbnail }}" alt="">
+                            {{- else }}
+                                <div class="no-thumb">🎞️</div>
+                            {{- end }}
+                            <div class="duration">{{ .DurationHuman }}</div>
+                        </div>
+                        <div class="info">
+                            <div class="name" title="{{ .FileName }}">{{ .FileName }}</div>
+                            <div class="meta">
+                                <span>{{ .Resolution }}</span>
+                                <span>{{ .SizeHuman }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {{- end }}
+                </div>
 
-        {{- /* 分页（当前页/总页数由上层 PageData 注入） */ -}}
-        {{- if gt .TotalPages 1 }}
-            {{- template "_pager" . }}
-        {{- end }}
-    {{- end }}
-{{- end }}
+                {{- if gt .TotalPages 1 }}
+                    {{- $cur := .CurrentPage }}
+                    {{- $total := .TotalPages }}
+                    {{- $base := .PagerBaseURL }}
+                    <div class="pager">
+                        {{- if gt $cur 1 }}
+                            <a href="{{ $base }}&page={{ sub $cur 1 }}">上一页</a>
+                        {{- end }}
+                        {{- range pageRange $cur $total }}
+                            {{- if eq . 0 }}
+                                <span>...</span>
+                            {{- else if eq . $cur }}
+                                <span class="current">{{ . }}</span>
+                            {{- else }}
+                                <a href="{{ $base }}&page={{ . }}">{{ . }}</a>
+                            {{- end }}
+                        {{- end }}
+                        {{- if lt $cur $total }}
+                            <a href="{{ $base }}&page={{ add $cur 1 }}">下一页</a>
+                        {{- end }}
+                    </div>
+                {{- end }}
+            {{- end }}
+        </div>
+    </div>
+</div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

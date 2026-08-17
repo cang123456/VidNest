@@ -1,52 +1,80 @@
-{{- /* 播放页：没有搜索，没有网格，只有播放器 + 信息卡片 */ -}}
-{{- define "breadcrumb" }}
-    {{- $v := .Data }}
-    <a href="/" style="color:#6b7280;">全部视频</a>
-    {{- if ne $v.FolderPath "/" }}
-        <span style="margin:0 6px;color:#9ca3af;">/</span>
-        <a href="/folder{{ $v.FolderPath }}" style="color:#6b7280;">📁{{ folderName $v.FolderPath }}</a>
-    {{- end }}
-    <span style="margin:0 6px;color:#9ca3af;">/</span>
-    <b>{{ $v.FileName }}</b>
-{{- end }}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{ .Title }} - 本地视频 NAS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">🎬 我的视频</div>
+        {{- range .Folders }}
+        {{- $active := eq .Path "" }}
+        {{- if not $active }}{{ $active = eq .Path $.FolderPath }}{{- end }}
+        <a class="nav-item {{ if $active }}active{{ end }}"
+           href="{{ if eq .Path "" }}/{{ else }}/folder{{ .Path }}{{ end }}">
+            <span>
+                {{- if eq .Path "" }}📚{{ else }}<span class="folder-icon">📁</span>{{ end }}
+                {{ .Name }}
+            </span>
+            <span class="count">{{ .Count }}</span>
+        </a>
+        {{- end }}
+    </aside>
 
-{{- define "content" }}
-    {{- $v := .Data }}
-    <div class="player-wrap">
-        <div class="player-box">
-            <video
-                controls
-                controlslist="nodownload"
-                preload="metadata"
-                poster="{{ if $v.Thumbnail }}/thumb/{{ $v.Thumbnail }}{{ end }}">
-                <source src="/api/stream/{{ $v.ID }}" type="{{ guessMime $v.FileName }}">
-                你的浏览器不支持 HTML5 视频播放。
-            </video>
-        </div>
+    <div class="main">
+        {{- $v := .Data }}
+        <header class="topbar">
+            <div class="left breadcrumb">
+                <a href="/" style="color:#6b7280;">全部视频</a>
+                {{- if ne $v.FolderPath "/" }}
+                    <span style="margin:0 6px;color:#9ca3af;">/</span>
+                    <a href="/folder{{ $v.FolderPath }}" style="color:#6b7280;">📁{{ folderName $v.FolderPath }}</a>
+                {{- end }}
+                <span style="margin:0 6px;color:#9ca3af;">/</span>
+                <b>{{ $v.FileName }}</b>
+            </div>
+            <div class="right">
+                <button class="btn btn-secondary" data-action="scan">🔄 重新扫描</button>
+                <a href="/upload" class="btn btn-primary">⬆️ 上传视频</a>
+            </div>
+        </header>
 
-        <div class="info-card">
-            <h2 title="{{ $v.FileName }}">{{ $v.FileName }}</h2>
+        <div class="content">
+            <div class="player-wrap">
+                <div class="player-box">
+                    <video controls controlslist="nodownload" preload="metadata"
+                           poster="{{ if $v.Thumbnail }}/thumb/{{ $v.Thumbnail }}{{ end }}">
+                        <source src="/api/stream/{{ $v.ID }}" type="{{ guessMime $v.FileName }}">
+                        你的浏览器不支持 HTML5 视频播放。
+                    </video>
+                </div>
 
-            <div class="row"><span class="k">文件大小</span><span class="v">{{ $v.SizeHuman }}</span></div>
-            <div class="row"><span class="k">视频时长</span><span class="v">{{ $v.DurationHuman }}</span></div>
-            <div class="row"><span class="k">分辨率</span><span class="v">{{ or $v.Resolution "-" }}</span></div>
-            <div class="row"><span class="k">所在文件夹</span><span class="v">{{ $v.FolderPath }}</span></div>
-            <div class="row"><span class="k">入库时间</span><span class="v">{{ formatTime $v.CreatedAt }}</span></div>
-            <div class="row"><span class="k">磁盘路径</span><span class="v" style="font-size:12px;word-break:break-all;">{{ $v.FilePath }}</span></div>
+                <div class="info-card">
+                    <h2 title="{{ $v.FileName }}">{{ $v.FileName }}</h2>
 
-            <div class="actions">
-                <a class="btn btn-secondary" href="{{ if eq $v.FolderPath "/" }}/{{ else }}/folder{{ $v.FolderPath }}{{ end }}">← 返回列表</a>
-                <a class="btn btn-primary" href="/api/download/{{ $v.ID }}">⬇️ 下载原文件</a>
-                <button class="btn btn-danger" onclick="if(confirm('确定从数据库删除这条记录吗？(通过网页上传的文件将同时被删除，扫描导入的电影库原文件不会被删)')){
-                    fetch('/api/delete/{{ $v.ID }}', {method:'POST'})
-                        .then(r=>r.json()).then(j=>{ if(j.ok){ location.href='/'; } else { alert(j.msg); } });
-                }">🗑️ 删除记录</button>
+                    <div class="row"><span class="k">文件大小</span><span class="v">{{ $v.SizeHuman }}</span></div>
+                    <div class="row"><span class="k">视频时长</span><span class="v">{{ $v.DurationHuman }}</span></div>
+                    <div class="row"><span class="k">分辨率</span><span class="v">{{ or $v.Resolution "-" }}</span></div>
+                    <div class="row"><span class="k">所在文件夹</span><span class="v">{{ $v.FolderPath }}</span></div>
+                    <div class="row"><span class="k">入库时间</span><span class="v">{{ formatTime $v.CreatedAt }}</span></div>
+                    <div class="row"><span class="k">磁盘路径</span><span class="v" style="font-size:12px;word-break:break-all;">{{ $v.FilePath }}</span></div>
+
+                    <div class="actions">
+                        <a class="btn btn-secondary" href="{{ if eq $v.FolderPath "/" }}/{{ else }}/folder{{ $v.FolderPath }}{{ end }}">← 返回列表</a>
+                        <a class="btn btn-primary" href="/api/download/{{ $v.ID }}">⬇️ 下载原文件</a>
+                        <button class="btn btn-danger" onclick="if(confirm('确定从数据库删除这条记录吗？(通过网页上传的文件将同时被删除，扫描导入的电影库原文件不会被删)')){
+                            fetch('/api/delete/{{ $v.ID }}', {method:'POST'})
+                                .then(r=>r.json()).then(j=>{ if(j.ok){ location.href='/'; } else { alert(j.msg); } });
+                        }">🗑️ 删除记录</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-{{- end }}
-
-{{- /* 播放页没有排序条，覆盖 toolbar 为空 */ -}}
-{{- define "toolbar" }}{{- end }}
-{{- /* 播放页搜索表单 URL 无意义，覆盖为 # */ -}}
-{{- define "search-url" }}#{{- end }}
+</div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

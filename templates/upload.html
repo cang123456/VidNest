@@ -1,17 +1,51 @@
-{{- define "breadcrumb" }}<b>上传视频</b>{{- end }}
-{{- define "toolbar" }}{{- end }}
-{{- define "search-url" }}#{{- end }}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{ .Title }} - 本地视频 NAS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">🎬 我的视频</div>
+        {{- range .Folders }}
+        {{- $active := eq .Path "" }}
+        {{- if not $active }}{{ $active = eq .Path $.FolderPath }}{{- end }}
+        <a class="nav-item {{ if $active }}active{{ end }}"
+           href="{{ if eq .Path "" }}/{{ else }}/folder{{ .Path }}{{ end }}">
+            <span>
+                {{- if eq .Path "" }}📚{{ else }}<span class="folder-icon">📁</span>{{ end }}
+                {{ .Name }}
+            </span>
+            <span class="count">{{ .Count }}</span>
+        </a>
+        {{- end }}
+    </aside>
 
-{{- define "content" }}
-<div class="upload-page">
-    <div id="dropZone" class="drop-zone">
-        <div class="big">📥</div>
-        <div class="title">拖拽视频文件到这里</div>
-        <div class="sub">或者点击框内任意位置选择文件 · 支持 mp4 / mkv / avi / mov 等常见格式</div>
+    <div class="main">
+        <header class="topbar">
+            <div class="left breadcrumb"><b>上传视频</b></div>
+            <div class="right">
+                <button class="btn btn-secondary" data-action="scan">🔄 重新扫描</button>
+                <a href="/upload" class="btn btn-primary">⬆️ 上传视频</a>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="upload-page">
+                <div id="dropZone" class="drop-zone">
+                    <div class="big">📥</div>
+                    <div class="title">拖拽视频文件到这里</div>
+                    <div class="sub">或者点击框内任意位置选择文件 · 支持 mp4 / mkv / avi / mov 等常见格式</div>
+                </div>
+                <input id="fileInput" type="file" accept="video/*,.mp4,.mkv,.avi,.mov,.wmv,.flv,.webm,.m4v,.rmvb,.rm" multiple style="display:none;">
+                <div id="uploadList" class="upload-list"></div>
+            </div>
+        </div>
     </div>
-    <!-- 隐藏的 input，靠点击 / 拖拽来触发 -->
-    <input id="fileInput" type="file" accept="video/*,.mp4,.mkv,.avi,.mov,.wmv,.flv,.webm,.m4v,.rmvb,.rm" multiple style="display:none;">
-
-    <div id="uploadList" class="upload-list"></div>
 </div>
-{{- end }}
+<script src="/static/js/app.js"></script>
+</body>
+</html>

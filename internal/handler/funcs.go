@@ -190,16 +190,14 @@ func pageRangeForTemplate(cur, total int) []int {
 // PageData 结构体加上一个 RequestURL 字段，在渲染之前由 handler 赋值。
 
 func pagerBaseURLForTemplate(pd interface{}) string {
-	// 尝试转成内部用的 pageURL 接口
 	switch x := pd.(type) {
 	case interface{ GetPagerBase() string }:
 		return x.GetPagerBase()
 	case PageData:
-		return x.pagerBase
+		return x.PagerBaseURL
 	case *PageData:
-		return x.pagerBase
+		return x.PagerBaseURL
 	}
-	// 兜底，防止模板渲染时直接崩
 	return "?"
 }
 
@@ -230,7 +228,7 @@ func BuildPagerBaseURL(c *gin.Context) string {
 
 // ---- 给 PageData 注入分页基础 URL（handler 里调用）----
 func (p *PageData) SetPagerBase(u string) {
-	p.pagerBase = trimEnd(u)
+	p.PagerBaseURL = trimEnd(u)
 }
 
 // trimEnd 去掉末尾多余的 & 或 ?，让拼接出来的 URL 好看点
@@ -249,7 +247,7 @@ func (p *PageData) GetPagerBase() string {
 	if p == nil {
 		return "?"
 	}
-	return p.pagerBase
+	return p.PagerBaseURL
 }
 
 // ---- 额外：字符串转 int 的安全函数（和 handler.go 里 parseQueryInt 保持一致，调试用）----

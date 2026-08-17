@@ -22,8 +22,9 @@ func Default() *Config {
 	dataDir := "./data"
 
 	return &Config{
-		Port:        8080,
-		VideoRoot:   filepath.Join(dataDir, "library"),
+		Port: 8080,
+		//VideoRoot:   filepath.Join(dataDir, "library"),
+		VideoRoot:   filepath.Join("E:\\OBS_vedio", "\\vedio"),
 		ThumbDir:    filepath.Join(dataDir, "thumbnails"),
 		DBPath:      filepath.Join(dataDir, "videos.db"),
 		FFmpegPath:  "ffmpeg",
