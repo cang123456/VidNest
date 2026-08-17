@@ -1,0 +1,75 @@
+{{- /* 文件夹页：大部分和首页一样，只改面包屑 + 搜索URL + 空状态 */ -}}
+{{- define "breadcrumb" }}
+    {{- $p := .FolderPath }}
+    {{- $parts := splitFolder $p }}
+    <a href="/" style="color:#6b7280;">全部视频</a>
+    <span style="margin:0 6px;color:#9ca3af;">/</span>
+    {{- range $i, $part := $parts }}
+        {{- if gt $i 0 }}<span style="margin:0 6px;color:#9ca3af;">/</span>{{ end }}
+        {{- $accum := accumulate $parts $i }}
+        <a href="/folder{{ $accum }}" style="color:#6b7280;">{{ $part.Name }}</a>
+    {{- end }}
+{{- end }}
+
+{{- define "search-url" }}/folder{{ .FolderPath }}{{- end }}
+
+{{- define "toolbar" }}
+<div class="toolbar">
+    <div style="color:#6b7280; font-size:13px;">
+        当前文件夹：<b style="color:#1f2937;">{{ .FolderPath }}</b>
+    </div>
+    <div class="sort-wrap">
+        排序：
+        <form method="get" action="/folder{{ .FolderPath }}" style="display:inline;">
+            {{- if ne .Search "" }}<input type="hidden" name="q" value="{{ .Search }}">{{- end }}
+            <select class="sort-select" name="sort" onchange="this.form.submit()">
+                <option value="date_desc" {{ if eq .Sort "" "date_desc" }}selected{{ end }}>最新入库 ↓</option>
+                <option value="date"      {{ if eq .Sort "date" }}selected{{ end }}>最早入库 ↑</option>
+                <option value="name"      {{ if eq .Sort "name" }}selected{{ end }}>文件名 A→Z</option>
+                <option value="name_desc" {{ if eq .Sort "name_desc" }}selected{{ end }}>文件名 Z→A</option>
+                <option value="size_desc" {{ if eq .Sort "size_desc" }}selected{{ end }}>文件大→小</option>
+                <option value="size"      {{ if eq .Sort "size" }}selected{{ end }}>文件小→大</option>
+            </select>
+        </form>
+    </div>
+</div>
+{{- end }}
+
+{{- define "content" }}
+    {{- $videos := .Data }}
+    {{- if not $videos }}
+        <div class="empty-state">
+            <div class="big-icon">📂</div>
+            <div class="tip">这个文件夹里还没有视频</div>
+            <div class="sub">
+                提示：扫描时会按你电脑里的真实目录生成文件夹
+            </div>
+        </div>
+    {{- else }}
+        <div class="video-grid">
+        {{- range $videos }}
+            <div class="video-card" data-video-id="{{ .ID }}">
+                <div class="cover">
+                    {{- if .Thumbnail }}
+                        <img loading="lazy" src="/thumb/{{ .Thumbnail }}" alt="">
+                    {{- else }}
+                        <div class="no-thumb">🎞️</div>
+                    {{- end }}
+                    <div class="duration">{{ .DurationHuman }}</div>
+                </div>
+                <div class="info">
+                    <div class="name" title="{{ .FileName }}">{{ .FileName }}</div>
+                    <div class="meta">
+                        <span>{{ .Resolution }}</span>
+                        <span>{{ .SizeHuman }}</span>
+                    </div>
+                </div>
+            </div>
+        {{- end }}
+        </div>
+
+        {{- if gt .TotalPages 1 }}
+            {{- template "_pager" . }}
+        {{- end }}
+    {{- end }}
+{{- end }}

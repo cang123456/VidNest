@@ -1,0 +1,27 @@
+<!-- 分页控件。
+     需要 3 个变量：CurrentPage / TotalPages / 当前基础 URL（保留 search 和 sort）
+     基础 URL 的生成思路：当前 URL 去掉 ?page=xxx，其他参数保留
+     这里用一个技巧：让模板用全局函数 currentPageBaseURL 生成基础 URL
+-->
+{{- define "_pager" }}
+<div class="pager">
+    {{- $cur := .CurrentPage }}
+    {{- $total := .TotalPages }}
+    {{- $base := pagerBaseURL . }}
+    {{- if gt $cur 1 }}
+        <a href="{{ $base }}&page={{ sub $cur 1 }}">上一页</a>
+    {{- end }}
+    {{- range pageRange $cur $total }}
+        {{- if eq . 0 }}
+            <span>...</span>
+        {{- else if eq . $cur }}
+            <span class="current">{{ . }}</span>
+        {{- else }}
+            <a href="{{ $base }}&page={{ . }}">{{ . }}</a>
+        {{- end }}
+    {{- end }}
+    {{- if lt $cur $total }}
+        <a href="{{ $base }}&page={{ add $cur 1 }}">下一页</a>
+    {{- end }}
+</div>
+{{- end }}

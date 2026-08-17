@@ -1,0 +1,17 @@
+{{- define "breadcrumb" }}<b>上传视频</b>{{- end }}
+{{- define "toolbar" }}{{- end }}
+{{- define "search-url" }}#{{- end }}
+
+{{- define "content" }}
+<div class="upload-page">
+    <div id="dropZone" class="drop-zone">
+        <div class="big">📥</div>
+        <div class="title">拖拽视频文件到这里</div>
+        <div class="sub">或者点击框内任意位置选择文件 · 支持 mp4 / mkv / avi / mov 等常见格式</div>
+    </div>
+    <!-- 隐藏的 input，靠点击 / 拖拽来触发 -->
+    <input id="fileInput" type="file" accept="video/*,.mp4,.mkv,.avi,.mov,.wmv,.flv,.webm,.m4v,.rmvb,.rm" multiple style="display:none;">
+
+    <div id="uploadList" class="upload-list"></div>
+</div>
+{{- end }}
