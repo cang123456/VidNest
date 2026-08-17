@@ -117,14 +117,10 @@ go打包
 go build -o main.exe main.go
 
 pm2运维
+
 ```
-
-
-
-
 pm2 start ecosystem.config.js
 # 启动
-
 pm2 status # 查看进程状态
 pm2 logs myapp # 查看日志
 pm2 restart myapp # 重启进程
@@ -140,12 +136,10 @@ pm2 kill          # 停止所有 PM2 进程（包括守护进程）
 pm2 start ecosystem.config.js   # 启动应用
 pm2 save                          # 保存进程列表
 # 然后再把 .bat 脚本加入开机启动
-
-
-
 ```
 
 ecosystem.config.js内容
+
 ```
 module.exports = {
   apps: [{
@@ -162,3 +156,16 @@ module.exports = {
   }]
 }
 ```
+
+打包后需要的必要运行文件：（其他的都可以删了）
+video-nas.exe     ← go后端
+templates/        ← 这些 HTML 文件必须跟着 exe 走
+  home.html
+  folder.html
+  player.html
+  upload.html
+  error.html
+static/
+  css/style.css
+  js/app.js
+data/             ← 运行时自动生成（数据库、视频、封面）
