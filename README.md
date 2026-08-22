@@ -2,6 +2,11 @@
   本地视频 NAS · 使用说明
 ==============================
 
+效果展示：
+1 启动项目go run main.go![img.png](.idea/img001/img.png)
+2 自动扫描目录下面所有视频，建立sqlite数据库，vedio表（data目录下的db文件），利用ffmepg截取缩略图（data下面）![img_1.png](.idea/img001/img_1.png)
+3 下面就是可以点击播放了![img_2.png](.idea/img001/img_2.png)
+
 一、目录里这些是干啥的
 ----------------------
 main.go                  ← 程序入口
@@ -42,7 +47,7 @@ data/                    ← 运行后自动创建
      config/config.go 里的 FFmpegPath / FFprobePath，例如：
          FFmpegPath:  "C:/tools/ffmpeg/bin/ffmpeg.exe",
          FFprobePath: "C:/tools/ffmpeg/bin/ffprobe.exe",
-
+    
      【没装 FFmpeg 也能启动】只是没封面、没时长、没分辨率，
      不影响浏览和播放；之后装好重启程序即可。
 
@@ -53,7 +58,7 @@ data/                    ← 运行后自动创建
 
     go mod tidy          ← 第一次需要，下载依赖；之后不用
     go run main.go       ← 直接跑起来（开发调试用）
-
+    
     或者打包成 exe：
     go build -o video-nas.exe main.go
     然后双击 video-nas.exe 启动。
