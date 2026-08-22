@@ -169,6 +169,7 @@ module.exports = {
 }
 ```
 
+```
 打包后需要的必要运行文件：（其他的都可以删了）
 video-nas.exe     ← go后端
 templates/        ← 这些 HTML 文件必须跟着 exe 走
@@ -181,3 +182,4 @@ static/
   css/style.css
   js/app.js
 data/             ← 运行时自动生成（数据库、视频、封面）
+```
