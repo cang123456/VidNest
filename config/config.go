@@ -22,7 +22,7 @@ func Default() *Config {
 	dataDir := "./data"
 
 	return &Config{
-		Port: 9001,
+		Port: 8080,
 		//VideoRoot:   filepath.Join(dataDir, "library"),
 		VideoRoot:   filepath.Join("E:\\", "B站视频"),
 		ThumbDir:    filepath.Join(dataDir, "thumbnails"),

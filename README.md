@@ -7,6 +7,12 @@
 2 自动扫描目录下面所有视频，建立sqlite数据库，vedio表（data目录下的db文件），利用ffmepg截取缩略图（data下面）![img_1.png](.idea/img001/img_1.png)
 3 下面就是可以点击播放了![img_2.png](.idea/img001/img_2.png)
 
+
+
+使用方法：
+1. config/config.go中配置端口，视频文件夹路径
+
+
 一、目录里这些是干啥的
 ----------------------
 main.go                  ← 程序入口
